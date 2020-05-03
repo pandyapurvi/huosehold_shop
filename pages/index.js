@@ -3,7 +3,7 @@ import axios from 'axios';
 
 
 function Home({ products }) {
-  //console.log(props.products);
+  //console.log(products);
   // React.useEffect(() => {
   //   getProducts()
   // }, []) //Second argument is dependany
