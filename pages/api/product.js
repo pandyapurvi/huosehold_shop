@@ -10,6 +10,7 @@ export default async (req, res) => {
     case "DELETE":
       await handleDeleteRequest(req, res);
       break;
+    
     default:
       res.status(405).send(`this ${req.method} not found`)
   }
