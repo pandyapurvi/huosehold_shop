@@ -1,10 +1,16 @@
 import Product from "../../models/Product";
-// import { Query } from "mongoose";
+import connectDb from "../../utils/connectDb";
+
+connectDb();
 
 export default async (req, res) => {
   switch (req.method) {
     case "GET":
       await handleGetRequest(req, res);
+      break;
+    
+    case "POST":
+      await handlePostRequest(req, res);
       break;
     
     case "DELETE":
@@ -25,7 +31,21 @@ async function handleGetRequest (req, res) {
 async function handleDeleteRequest(req, res) {
   const { _id } = req.query;
   await Product.findOneAndDelete({ _id });
-  res.statu(204).json({});
+  res.status(204).json({});
+}
+
+async function handlePostRequest(req, res) {
+  const { name, price, mediaUrl, description } = req.body;
+  if (!name || !price || !mediaUrl || !description) {
+    return res.status(422).send("Product missing one or more field")
+  }
+  const product = await new Product({
+    name,
+    price,
+    mediaUrl,
+    description
+  }).save()
+  res.status(201).json(product);
 }
 
 // export default async (req, res) => {

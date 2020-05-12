@@ -1,8 +1,8 @@
 
 import { useState } from 'react';
-import { Form, Input, TextArea, Button, Image, Message, Header, Icon } from "semantic-ui-react";
-
-
+import { Form, Input, TextArea, Button, Image, Message, Header, Icon, Loader } from "semantic-ui-react";
+import axios from 'axios';
+import baseUrl from '../utils/baseUrl';
 
 function CreateProduct() {
   const InitialState = {
@@ -14,22 +14,41 @@ function CreateProduct() {
   const [product, setProduct] = React.useState(InitialState);
   const [mediaPreview, setMediaPreview] = React.useState('');
   const [success, setSuccess] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
 
   function handleChange(event) {
     //console.log(event);
     const { name, value, files } = event.target;
-    if (name === 'media') {
+    if (name === "media") {
       setProduct(prevState => ({ ...prevState, media: files[0] }));
       setMediaPreview(window.URL.createObjectURL(files[0]));
     } else {
       setProduct( (prevState) => ({...prevState, [name]: value }));
     }
      //written [name] instead of name. So it take name as variable. else it will consider 'name' as a string. 
-    console.log(product);
+    // console.log(product);
   }
 
-  function handleSubmit(event) {
+  async function handleImageUpload() {
+    const data = new FormData();
+    data.append('file', product.media)
+    data.append('upload_preset', 'ReactHousehold')
+    data.append('cloud_name', 'purvi')
+    const response = await axios.post(process.env.CLOUDINARY_URL, data)
+    const mediaUrl = response.data.url
+    return mediaUrl;
+   }
+
+  async function handleSubmit(event) {
     event.preventDefault();
+    setLoading(true)
+    const mediaUrl = await handleImageUpload()
+    console.log({ mediaUrl });
+    const url = `${baseUrl}/api/product`
+    const { name, price, description } = product
+    const payload = { name, price, description, mediaUrl };
+    const response = await axios.post(url, payload);
+    setLoading(false);
     setProduct(InitialState);//This will clearout data upon submit.
     setSuccess(true);
   }
@@ -39,7 +58,7 @@ function CreateProduct() {
         <Icon name="add" color="orange"/>
         Create New Product
       </Header>
-      <Form success={success} onSubmit={handleSubmit}>
+      <Form loading={loading} success={success} onSubmit={handleSubmit}>
         <Message
           success
           icon="check"
@@ -71,7 +90,7 @@ function CreateProduct() {
 
           <Form.Field
             control={Input}
-            name="meida"
+            name="media"
             label="Media"
             content="Select an image"
             type="file"
@@ -80,7 +99,7 @@ function CreateProduct() {
           />
         </Form.Group>
         <Image
-          src={setMediaPreview} rounded centered size="small"
+          src={mediaPreview} rounded centered size="small"
         />
           <Form.Field
             control={TextArea}
@@ -90,10 +109,11 @@ function CreateProduct() {
             type="text"
             value={product.description}
             onChange={handleChange}
-          />
+        />
         
           <Form.Field
             control={Button}
+            disabled={loading}
             name="submit"
             label="Submit"
             icon="pencil alternate"
