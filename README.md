@@ -1,1 +1,1 @@
-# huosehold_shop
+# household_shop
