@@ -8,7 +8,7 @@ Router.onRouterChangeError = () => Nprogress.done();
 
 
 function Header() {
-  const user = true;
+  const user = false;
   const router = useRouter();
   //router.pathname = it gives on which path we are on
 
