@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Form, Input, TextArea, Button, Image, Message, Header, Icon, Loader } from "semantic-ui-react";
 import axios from 'axios';
 import baseUrl from '../utils/baseUrl';
+import catchErrors from "../utils/catchErrors";
 
 function CreateProduct() {
   const InitialState = {
@@ -15,6 +16,14 @@ function CreateProduct() {
   const [mediaPreview, setMediaPreview] = React.useState('');
   const [success, setSuccess] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const [disabled, setDisabled] = React.useState(true);
+  const [error, setError] = React.useState('')
+
+  React.useEffect(() => {
+    const isProduct = Object.values(product).every(el => Boolean(el));
+
+    isProduct ? setDisabled(false) : setDisabled(true);
+  }, [product])
 
   function handleChange(event) {
     //console.log(event);
@@ -40,7 +49,8 @@ function CreateProduct() {
    }
 
   async function handleSubmit(event) {
-    event.preventDefault();
+    try {
+      event.preventDefault();
     setLoading(true)
     const mediaUrl = await handleImageUpload()
     console.log({ mediaUrl });
@@ -48,9 +58,16 @@ function CreateProduct() {
     const { name, price, description } = product
     const payload = { name, price, description, mediaUrl };
     const response = await axios.post(url, payload);
-    setLoading(false);
+   
     setProduct(InitialState);//This will clearout data upon submit.
     setSuccess(true);
+    } catch (error) {
+      catchErrors(error, setError)
+      console.error("Error!!!", error);
+    } finally {
+      setLoading(false);
+    }
+    
   }
   return (
     <>
@@ -58,12 +75,12 @@ function CreateProduct() {
         <Icon name="add" color="orange"/>
         Create New Product
       </Header>
-      <Form loading={loading} success={success} onSubmit={handleSubmit}>
+      <Form loading={loading} error={Boolean(error)} onSubmit={handleSubmit}>
         <Message
-          success
-          icon="check"
-          header="Success"
-          content="Your order has ben posted successfully!!"
+          error
+          
+          header="Oops"
+          content={error}
         />
         <Form.Group widths="equal">
           <Form.Field
@@ -113,7 +130,7 @@ function CreateProduct() {
         
           <Form.Field
             control={Button}
-            disabled={loading}
+            disabled={disabled || loading}
             name="submit"
             label="Submit"
             icon="pencil alternate"

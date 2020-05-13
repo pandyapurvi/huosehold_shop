@@ -35,9 +35,10 @@ async function handleDeleteRequest(req, res) {
 }
 
 async function handlePostRequest(req, res) {
-  const { name, price, mediaUrl, description } = req.body;
-  if (!name || !price || !mediaUrl || !description) {
-    return res.status(422).send("Product missing one or more field")
+  try {
+    const { name, price, mediaUrl, description } = req.body;
+      if (!name || !price || !mediaUrl || !description) {
+      return res.status(422).send("Product missing one or more field")
   }
   const product = await new Product({
     name,
@@ -46,6 +47,10 @@ async function handlePostRequest(req, res) {
     description
   }).save()
   res.status(201).json(product);
+  } catch (error) {
+    res.status(500).send("Error")
+  }
+  
 }
 
 // export default async (req, res) => {
