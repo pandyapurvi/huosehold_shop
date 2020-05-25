@@ -3,6 +3,8 @@ import { Button, Form, Message, Segment, Icon } from "semantic-ui-react";
 import Link from "next/link";
 import axios from 'axios';
 import catchErrors from "../utils/catchErrors";
+import baseUrl from "../utils/baseUrl";
+import { handleLogin } from "../utils/auth";
 
 function Signup() {
   const InitialState = {
@@ -25,12 +27,16 @@ function Signup() {
     setUser(prevState => ({...prevState, [name]: value}))
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     try {
       setLoading(true)
       setError('')
-      //make request to signuo
+      //make request to signup
+      const url = `${baseUrl}/api/signup`
+      const payload = { ...user }
+      const response = await axios.post(url, payload)
+      handleLogin(response.data)
     } catch (error) {
       catchErrors(error, setError)
     } finally {
@@ -56,7 +62,7 @@ function Signup() {
           fluid
           icon="user"
           iconPosition="left"
-          Label="Name"
+          label="Name"
           placeholder="Name"
           name="name"
           value={user.name}
@@ -66,7 +72,7 @@ function Signup() {
           fluid
           icon="envelope"
           iconPosition="left"
-          Label="Email"
+          label="Email"
           placeholder="Email"
           name="email"
           type="email"
@@ -77,7 +83,7 @@ function Signup() {
           fluid
           icon="lock"
           iconPosition="left"
-          Label="Password"
+          label="Password"
           placeholder="Password"
           name="password"
           type="password"

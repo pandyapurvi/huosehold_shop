@@ -3,6 +3,9 @@ import { Button, Form, Message, Segment, Icon } from "semantic-ui-react";
 import Link from "next/link";
 import axios from 'axios';
 import catchErrors from "../utils/catchErrors";
+import baseUrl from "../utils/baseUrl";
+import { handleLogin } from '../utils/auth';
+
 
 function Login() {
   const InitialState = {
@@ -24,12 +27,16 @@ function Login() {
     setUser(prevState => ({...prevState, [name]: value}))
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     try {
       setLoading(true)
       setError('')
-      //make request to signuo
+      //make request to signup
+      const url = `${baseUrl}/api/login`;
+      const payload = { ...user }
+      const response = await axios.post(url, payload)
+      handleLogin(response.data)
     } catch (error) {
       catchErrors(error, setError)
     } finally {
