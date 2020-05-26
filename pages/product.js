@@ -8,7 +8,7 @@ function Product({ product, user }) {
   //console.log(product);
   return (
     <>
-      <AddProductToCart product={product} />
+      <AddProductToCart user={user} product={product} />
       <ProductAttributes user={user} product={product} /> 
     </>
   );
