@@ -1,16 +1,21 @@
 import { Menu, Container, Image, Icon } from "semantic-ui-react";
 import Link from "next/link";
 import Router, { useRouter } from "next/router";
+import { handleLogout } from "../../utils/auth";
+
 
 Router.onRouterChangeStart = () => Nprogress.start();
 Router.onRouterChangeComplete = () => Nprogress.done();
 Router.onRouterChangeError = () => Nprogress.done();
 
 
-function Header() {
-  const user = false;
+function Header({user}) {
+  // const user = false;
   const router = useRouter();
   //router.pathname = it gives on which path we are on
+  const isRoot = user && user.root === 'root'
+  const isAdmin = user && user.admin === 'admin'
+  const isRootOrAdmin = isRoot || isAdmin
 
   const isActive = (route) => {
     return route === router.pathname //This will return true if matches
@@ -40,7 +45,7 @@ function Header() {
           </Menu.Item>
         </Link>
 
-        { user && <Link href="/create">
+        { isRootOrAdmin && <Link href="/create">
           <Menu.Item header active={isActive('/create')}>
             <Icon
               name="add square"
@@ -50,7 +55,7 @@ function Header() {
           </Menu.Item>
         </Link>}
 
-        {user ? ( <>
+        {isRootOrAdmin ? ( <>
           <Link href="/account">
             <Menu.Item header active={isActive('/account')}>
               <Icon
@@ -61,7 +66,7 @@ function Header() {
           </Menu.Item>
           </Link>
           
-          <Menu.Item header>
+          <Menu.Item onClick={handleLogout} header>
             <Icon
               name="sign out"
               size="large"

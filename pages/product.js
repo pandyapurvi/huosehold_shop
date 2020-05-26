@@ -4,12 +4,12 @@ import AddProductToCart from "../components/Product/AddProductToCart";
 import baseUrl from "../utils/baseUrl";
 
 
-function Product({ product }) {
+function Product({ product, user }) {
   //console.log(product);
   return (
     <>
       <AddProductToCart product={product} />
-      <ProductAttributes product={product} /> 
+      <ProductAttributes user={user} product={product} /> 
     </>
   );
 }
